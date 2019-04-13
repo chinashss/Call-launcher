@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rc_plugin_recognize">Realtime Trans</string>
+    <string name="rc_plugin_recognize_clear">Clear</string>
+    <string name="check_network">Please check your network settings</string>
+    <string name="get_azure_token_fail">Failed to obtain Azure Token. Please check your network settings.</string>
+</resources>

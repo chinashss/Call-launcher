@@ -1,0 +1,390 @@
+package com.trios.voicecmd;
+
+/**
+ * Created by liuhongyu on 2016/12/1.
+ */
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.EditText;
+import android.widget.Toast;
+import android.os.Message;
+
+import com.iflytek.cloud.SpeechRecognizer;
+import com.iflytek.cloud.ErrorCode;
+import com.iflytek.cloud.GrammarListener;
+import com.iflytek.cloud.InitListener;
+import com.iflytek.cloud.LexiconListener;
+import com.iflytek.cloud.RecognizerListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.util.ContactManager;
+import com.iflytek.cloud.util.ContactManager.ContactListener;
+import com.iflytek.cloud.util.ResourceUtil;
+import com.iflytek.cloud.util.ResourceUtil.RESOURCE_TYPE;
+import com.iflytek.speech.util.FucUtil;
+import com.iflytek.speech.util.JsonParser;
+import com.iflytek.speech.util.XmlParser;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechUtility;
+
+import java.util.Vector;
+import java.util.*;
+
+public class VoiceCmdEngine {
+
+    public static final int VoiceCmd_OK     = 100;    //  确认
+    public static final int VoiceCmd_CANCEL = 101;    //  取消
+    public static final int VoiceCmd_NEXT   = 102;    //  下一步
+    public static final int VoiceCmd_PREV   = 103;    //  上一步
+    public static final int VoiceCmd_CALL   = 104;    //  请求呼叫远程视频
+    public static final int VoiceCmd_HOME   = 105;    //  返回主界面（从任何一个界面）
+    public static final int VoiceCmd_Stop  = 109;    // 停止播放视频或者图片显示
+    public static final int VoiceCmd_STARTWORK = 113;
+    public static final int VoiceCmd_Help = 114;
+    public static final int VoiceCmd_HangUp = 115;
+    public static final int VoiceCmd_CleanScren=116;
+    public static final int VoiceCmd_ShowScren=117;
+    public static final int VoiceCmd_PHOTOGRAPH=118;
+    public static final int VoiceCmd_ERROR = 9999;
+
+    private boolean is_initialize = false;
+    private boolean is_listening  = false;
+
+    public static final String TAG = "voCmdEng";
+    private Context mContext = null;
+
+    // 语音识别对象
+    private SpeechRecognizer mAsr;
+
+    // 本地语法文件
+    private String mLocalGrammar = null;
+    // 本地词典
+    private String mLocalLexicon = null;
+
+    // 本地语法构建路径
+    private String grmPath = Environment.getExternalStorageDirectory()
+            .getAbsolutePath() + "/msc/test";
+    // 返回结果格式，支持：xml,json
+    private String mResultType = "json";
+
+    private  final String KEY_GRAMMAR_ABNF_ID = "grammar_abnf_id";
+    private  final String GRAMMAR_TYPE_ABNF = "abnf";
+    private  final String GRAMMAR_TYPE_BNF = "bnf";
+
+    private Map<Integer,Vector<Handler>>    mapHandlers = null;//  = new Map<Integer,Vector<Handler>>();
+    //private String mEngineType = SpeechConstant.TYPE_LOCAL;
+
+    private static VoiceCmdEngine instance = new VoiceCmdEngine();
+
+    public static VoiceCmdEngine getInstance()
+    {
+        return instance;
+    }
+
+    public boolean InitEngine( Context cxt )
+    {
+        // 初始化识别对象
+        if( is_initialize == false ) {
+
+            mContext = cxt;
+
+            StringBuffer param = new StringBuffer();
+            param.append("appid="+mContext.getString(R.string.app_id));
+            param.append(",");
+            // 设置使用v5+
+            param.append(SpeechConstant.ENGINE_MODE+"="+SpeechConstant.MODE_MSC);
+            SpeechUtility.createUtility(cxt, param.toString());
+
+            mapHandlers = new HashMap<Integer,Vector<Handler>>();
+
+            mAsr = SpeechRecognizer.createRecognizer(mContext, mInitListener);
+
+            // 初始化语法、命令词
+            mLocalLexicon = "张海羊\n刘婧\n王锋\n";
+
+            mLocalGrammar = FucUtil.readFile(mContext, "call.bnf", "utf-8");
+
+            if (!buildLocalGrammar()) {
+                Log.d(TAG, "构建语法失败。");
+                return false;
+            }
+
+            if (!setParam()) {
+                Log.d(TAG, "请先构建语法。");
+                return false;
+            }
+
+            is_initialize = true;
+
+            return true;
+        }
+        else{
+            Log.d(TAG, "引擎无法重复初始化。");
+            return false;
+        }
+    };
+
+    public void UnInitEngine() {
+        if( is_initialize ) {
+            mAsr.cancel();
+            mAsr.destroy();
+            is_initialize = false;
+        }
+    };
+
+    public boolean startListenCommand( boolean voiceActive ) {
+        int ret = ErrorCode.SUCCESS;
+        if( is_initialize ) {
+            ret = mAsr.startListening(mRecognizerListener);
+            if (ret != ErrorCode.SUCCESS) {
+                Log.d(TAG, "识别失败,错误码: " + ret);
+            }
+
+            is_listening = true;
+
+            return true;
+        }else{
+            Log.d(TAG, "引擎未初始化.");
+            return false;
+        }
+    };
+
+    String mContent;// 语法、词典临时变量
+
+    private boolean buildLocalGrammar() {
+        int ret = 0;
+        mContent = new String(mLocalGrammar);
+        mAsr.setParameter(SpeechConstant.PARAMS, null);
+        // 设置文本编码格式
+        mAsr.setParameter(SpeechConstant.TEXT_ENCODING,"utf-8");
+        // 设置引擎类型
+        mAsr.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_LOCAL);
+        // 设置语法构建路径
+        mAsr.setParameter(ResourceUtil.GRM_BUILD_PATH, grmPath);
+        //使用8k音频的时候请解开注释
+//					mAsr.setParameter(SpeechConstant.SAMPLE_RATE, "8000");
+        // 设置资源路径
+        mAsr.setParameter(ResourceUtil.ASR_RES_PATH, getResourcePath());
+        ret = mAsr.buildGrammar(GRAMMAR_TYPE_BNF, mContent, grammarListener);
+        if(ret != ErrorCode.SUCCESS){
+            Log.d(TAG,"语法构建失败,错误码：" + ret);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public void stopListen() {
+        if( is_listening ) {
+            mAsr.stopListening();
+            Log.d(TAG, "停止识别");
+            is_listening = false;
+        }else{
+            Log.d(TAG, "未处于监听状态");
+        }
+    }
+
+    public void RemoveAllHandlers() {
+        mapHandlers.clear();
+    };
+
+    public void RegisterHandler( Handler handler,int cmdID ) {
+        Vector<Handler> v = null;
+        if( mapHandlers.containsKey(cmdID) ) {
+            v = mapHandlers.get(cmdID);
+            if( v == null ) {
+                v = new Vector<Handler>();
+                v.add(handler);
+                mapHandlers.put(cmdID,v);
+            }else {
+                v.add(handler);
+            }
+        }else {
+            v = new Vector<Handler>();
+            v.add(handler);
+            mapHandlers.put(cmdID,v);
+        }
+    };
+
+    public void UnRegisterHandler( Handler handler,int cmdID ) {
+        Vector<Handler> v = null;
+        if( mapHandlers.containsKey(cmdID) ) {
+            v = mapHandlers.get(cmdID);
+            if( v != null ) {
+                v.remove( handler );
+            }
+        }
+    };
+
+    private void NotifyAllHandler( int cmdID, String str_ ) {
+        Vector<Handler> v = null;
+        if( mapHandlers.containsKey(cmdID) ) {
+            v = mapHandlers.get(cmdID);
+            if( v != null ) {
+                for( int i = 0;i < v.size();i++) {
+                    Handler h = v.get(i);
+                    if( h != null ) {
+                        Message msg = new Message();
+                        msg.what = cmdID;
+                        msg.obj = str_;
+                        h.sendMessage( msg );
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 初始化监听器。
+     */
+    private InitListener mInitListener = new InitListener() {
+
+        @Override
+        public void onInit(int code) {
+            Log.d(TAG, "SpeechRecognizer init() code = " + code);
+            if (code != ErrorCode.SUCCESS) {
+                Log.d(TAG,"初始化失败,错误码："+code);
+            }
+        }
+    };
+
+    /**
+     * 更新词典监听器。
+     */
+    private LexiconListener lexiconListener = new LexiconListener() {
+        @Override
+        public void onLexiconUpdated(String lexiconId, SpeechError error) {
+            if(error == null){
+                Log.d(TAG,"词典更新成功");
+            }else{
+                Log.d(TAG,"词典更新失败,错误码："+error.getErrorCode());
+            }
+        }
+    };
+
+    /**
+     * 构建语法监听器。
+     */
+    private GrammarListener grammarListener = new GrammarListener() {
+        @Override
+        public void onBuildFinish(String grammarId, SpeechError error) {
+            if(error == null){
+                Log.d(TAG,"语法构建成功：" + grammarId);
+            }else{
+                Log.d(TAG,"语法构建失败,错误码：" + error.getErrorCode());
+            }
+        }
+    };
+
+    /**
+     * 识别监听器。
+     */
+    private RecognizerListener mRecognizerListener = new RecognizerListener() {
+
+        @Override
+        public void onVolumeChanged(int volume, byte[] data) {
+            Log.d(TAG,"当前正在说话，音量大小：" + volume);
+            Log.d(TAG, "返回音频数据：" + data.length);
+        }
+
+        @Override
+        public void onResult(final RecognizerResult result, boolean isLast) {
+            if (null != result && !TextUtils.isEmpty(result.getResultString())) {
+                Log.d(TAG, "recognizer result：" + result.getResultString());
+                int command_id = -1;
+                if (mResultType.equals("json")) {
+                    command_id = JsonParser.parseCommandResult(result.getResultString());
+                    if( command_id >= 0 ) {
+                        NotifyAllHandler(command_id,JsonParser.parseIatResult(result.getResultString()));
+                    }
+                }
+                // 显示
+            } else {
+                Log.d(TAG, "recognizer result : null");
+                NotifyAllHandler(VoiceCmd_ERROR,"没有识别到数据");
+            }
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+            // 此回调表示：检测到了语音的尾端点，已经进入识别过程，不再接受语音输入
+            Log.d(TAG,"结束说话");
+        }
+
+        @Override
+        public void onBeginOfSpeech() {
+            // 此回调表示：sdk内部录音机已经准备好了，用户可以开始语音输入
+            Log.d(TAG,"开始说话");
+        }
+
+        @Override
+        public void onError(SpeechError error) {
+            Log.d(TAG,"onError Code：" + error.getErrorCode());
+            NotifyAllHandler(VoiceCmd_ERROR,"没有识别到相应命令");
+        }
+
+        @Override
+        public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
+            // 以下代码用于获取与云端的会话id，当业务出错时将会话id提供给技术支持人员，可用于查询会话日志，定位出错原因
+            // 若使用本地能力，会话id为null
+            //	if (SpeechEvent.EVENT_SESSION_ID == eventType) {
+            //		String sid = obj.getString(SpeechEvent.KEY_EVENT_SESSION_ID);
+            //		Log.d(TAG, "session id =" + sid);
+            //	}
+        }
+    };
+
+    /**
+     * 参数设置
+     * @param param
+     * @return
+     */
+    private boolean setParam(){
+        boolean result = false;
+        // 清空参数
+        mAsr.setParameter(SpeechConstant.PARAMS, null);
+        // 设置识别引擎
+        mAsr.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_LOCAL);
+
+        // 设置本地识别资源
+        mAsr.setParameter(ResourceUtil.ASR_RES_PATH, getResourcePath());
+        // 设置语法构建路径
+        mAsr.setParameter(ResourceUtil.GRM_BUILD_PATH, grmPath);
+        // 设置返回结果格式
+        mAsr.setParameter(SpeechConstant.RESULT_TYPE, mResultType);
+        // 设置本地识别使用语法id
+        mAsr.setParameter(SpeechConstant.LOCAL_GRAMMAR, "call");
+        // 设置识别的门限值
+        mAsr.setParameter(SpeechConstant.MIXED_THRESHOLD, "30");
+        // 使用8k音频的时候请解开注释
+//		mAsr.setParameter(SpeechConstant.SAMPLE_RATE, "8000");
+        result = true;
+
+        // 设置音频保存路径，保存音频格式支持pcm、wav，设置路径为sd卡请注意WRITE_EXTERNAL_STORAGE权限
+        // 注：AUDIO_FORMAT参数语记需要更新版本才能生效
+        mAsr.setParameter(SpeechConstant.AUDIO_FORMAT,"wav");
+        mAsr.setParameter(SpeechConstant.ASR_AUDIO_PATH, Environment.getExternalStorageDirectory()+"/msc/asr.wav");
+
+        //mAsr.setParameter(SpeechConstant.AUDIO_SOURCE, "-1");
+        return result;
+    }
+
+    //获取识别资源路径
+    private String getResourcePath(){
+        StringBuffer tempBuffer = new StringBuffer();
+        //识别通用资源
+        tempBuffer.append(ResourceUtil.generateResourcePath(mContext, RESOURCE_TYPE.assets, "asr/common.jet"));
+        //识别8k资源-使用8k的时候请解开注释
+//		tempBuffer.append(";");
+//		tempBuffer.append(ResourceUtil.generateResourcePath(this, RESOURCE_TYPE.assets, "asr/common_8k.jet"));
+        return tempBuffer.toString();
+    }
+}

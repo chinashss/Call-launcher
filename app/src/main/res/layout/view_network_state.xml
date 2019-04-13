@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="128dp"
+    android:layout_alignParentBottom="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/iv_network_state_success"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="30dp"
+        android:src="@mipmap/ic_network_state_success"
+        android:visibility="gone" />
+
+
+    <LinearLayout
+        android:id="@+id/ll_view_network_state_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="156dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="网络链接成功！"
+            android:textColor="#ffffffff"
+            android:textSize="40sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="已连接至 Hiwifi001，需要手动切换网络？"
+            android:textColor="#ffcfcfcf"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+
+</FrameLayout>

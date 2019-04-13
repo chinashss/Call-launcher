@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.holo.tvwidget.DrawingOrderRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rl_video_call_success_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:focusable="false">
+
+
+    <com.holo.tvwidget.MetroItemFrameLayout
+        android:id="@+id/callApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:focusable="true"
+        android:padding="20dp"
+        app:radius="4dp">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/logo" />
+    </com.holo.tvwidget.MetroItemFrameLayout>
+
+</com.holo.tvwidget.DrawingOrderRelativeLayout>
