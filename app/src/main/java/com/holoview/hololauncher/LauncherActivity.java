@@ -98,6 +98,8 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
     LinearLayout llViewNetworkStateContent;
     @BindView(R.id.rv_option_list)
     RecyclerView rvOptionList;
+    @BindView(R.id.tv_network_ssid)
+    TextView tvNetworkSsid;
 
 
     private int status = 0;
@@ -140,6 +142,8 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
         if (connection.isWifiConnected()) {
             ivNetworkStateSuccess.setVisibility(View.VISIBLE);
             llViewNetworkStateContent.setVisibility(View.VISIBLE);
+            tvNetworkSsid.setText("网络链接成功！已连接至：" + connection.getWifiInfo().getSSID());
+
             TimerTask task = new TimerTask() {
                 @Override
                 public void run() {
@@ -407,12 +411,12 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
 
 
     public void connSuccss() {
+        connection = WifiConnection.getInstance(LauncherActivity.this);
+        tvNetworkSsid.setText("网络链接成功！已连接至：" + connection.getWifiInfo().getSSID());
         if (HoloLauncherApp.isActivityTop(ScanWifiActivity.class, LauncherActivity.this)) {
             ActivityCollector.closeActivity(ScanWifiActivity.class);
         }
         next();
-
-
         ivNetworkStateSuccess.setVisibility(View.VISIBLE);
         llViewNetworkStateContent.setVisibility(View.VISIBLE);
         TimerTask task = new TimerTask() {
@@ -508,6 +512,7 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
                     Log.e("TAG", "isConnected:" + isConnected);
                     if (isConnected) {
                         status = 2;
+
                         connSuccss();
                     } else {
                         reCheck();

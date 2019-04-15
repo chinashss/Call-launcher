@@ -237,10 +237,6 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
                     return;
                 } else if (action.equals("api.audio.unsubscribe")) {
                     HoloLauncherApp.getApp().getCmdEngine().unUubscribe();
-                    HoloLauncherApp.call_list.clear();
-                    if (ImLib.instance().isLocalLoginOk()) {
-                        ImLib.instance().logout();
-                    }
                     return;
                 }
 

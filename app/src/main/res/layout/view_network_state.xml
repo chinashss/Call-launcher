@@ -26,18 +26,12 @@
         android:visibility="gone">
 
         <TextView
+            android:id="@+id/tv_network_ssid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="网络链接成功！"
+            android:text="网络链接成功！已连接至 Hiwifi00"
             android:textColor="#ffffffff"
             android:textSize="40sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="已连接至 Hiwifi001，需要手动切换网络？"
-            android:textColor="#ffcfcfcf"
-            android:textSize="30sp" />
     </LinearLayout>
 
 
