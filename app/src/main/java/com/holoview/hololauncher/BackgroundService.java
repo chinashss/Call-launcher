@@ -241,10 +241,6 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
                     if (ImLib.instance().isLocalLoginOk()) {
                         ImLib.instance().logout();
                     }
-                    HoloLauncherApp.token = "";
-                    HoloLauncherApp.roomId = 0L;
-                    HoloLauncherApp.converstaiontype = 0;
-                    Toast.makeText(BackgroundService.this, "退出成功", Toast.LENGTH_LONG).show();
                     return;
                 }
 

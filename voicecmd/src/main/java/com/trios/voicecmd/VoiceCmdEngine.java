@@ -53,6 +53,8 @@ public class VoiceCmdEngine extends XAudioRecord {
     public static final int VoiceCmd_ShowScren = 117;
     public static final int VoiceCmd_PHOTOGRAPH = 118;
     public static final int VoiceCmd_SWITCHTASK = 119;
+    public static final int VOICE_QUIT = 120;
+    public static final int VOICE_SWITCH_CAMERA = 121;
     public static final int VoiceCmd_ERROR = 9999;
 
     private boolean is_initialize = false;

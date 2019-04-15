@@ -239,9 +239,6 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
         rvSystemAppsList.scrollToPosition(0);
 
 
-
-
-
     }
 
     private void loadSystemData() {
@@ -289,9 +286,6 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
             case VoiceCmdEngine.VoiceCmd_CALL:
                 Toast.makeText(getBaseContext(), "触发呼叫命令", Toast.LENGTH_SHORT).show();
                 onItemClick(0);
-                break;
-            case VoiceCmdEngine.VoiceCmd_SWITCHTASK:
-                Toast.makeText(getBaseContext(), "触发切换任务命令", Toast.LENGTH_SHORT).show();
                 break;
             case VoiceCmdEngine.VoiceCmd_Setting:
                 Toast.makeText(getBaseContext(), "触发系统设置命令", Toast.LENGTH_SHORT).show();
@@ -346,7 +340,6 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
             String result = SystemConfigSp.instance().getStrConfig(SystemConfigSp.SysCfgDimension.NAVIINFO);
             NaviRes naviRes = new Gson().fromJson(result, NaviRes.class);
             /**知道要跳转应用的包命与目标Activity*/
-            //我这边之前给oem 做了个推送服务器  因为有些oem想要推送消息  我这也没做太多限制   因为经过他的手 所以他知道 推送服务器地址  又给我开始吞单 然后我昨晚顺便直接把这些  不是我弄得推送站点 全停了推送 而且我都上每个站点和站长说 推送出问题了 让他们找经手人
             SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
             Intent intent = getPackageManager().getLaunchIntentForPackage(app.getPackageName());
             if (app.isNeedLogin()) {
@@ -354,6 +347,7 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
                 intent.putExtra("userSelfId", HoloLauncherApp.userSelfId);
                 intent.putExtra("converstaionType", HoloLauncherApp.converstaiontype);
                 intent.putExtra("roomId", HoloLauncherApp.roomId);
+                intent.putExtra("navi", result);
                 intent.putExtra("wss", naviRes.getResult().getSslmcusvr().getProto() + "://" + naviRes.getResult().getSslmcusvr().getUrl() + "/groupcall");
             }
             startActivity(intent);
