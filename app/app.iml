@@ -185,7 +185,5 @@
     <orderEntry type="library" name="Gradle: com.afollestad.material-dialogs:commons:0.9.6.0@aar" level="project" />
     <orderEntry type="module" module-name="zbarcanner" />
     <orderEntry type="module" module-name="voicecmd" />
-    <orderEntry type="module" module-name="zbarcanner" />
-    <orderEntry type="module" module-name="voicecmd" />
   </component>
 </module>
