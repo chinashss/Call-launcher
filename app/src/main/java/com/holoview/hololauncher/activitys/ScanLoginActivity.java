@@ -14,15 +14,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.holoview.hololauncher.BaseActivity;
 import com.holoview.hololauncher.HoloLauncherApp;
 import com.holoview.hololauncher.R;
 import com.holoview.hololauncher.bean.Constants;
+import com.hv.imlib.DB.sp.SystemConfigSp;
 import com.hv.imlib.ImLib;
 import com.hv.imlib.imservice.manager.IMNaviManager;
 import com.hv.imlib.protocol.ProtoConstant;
+import com.hv.imlib.protocol.http.NaviRes;
 import com.realview.commonlibrary.server.http.ErrorCode;
 import com.realview.commonlibrary.server.manager.AssetsManager;
+import com.realview.commonlibrary.server.manager.CommLib;
 import com.realview.commonlibrary.server.manager.QRCodeManager;
 
 import butterknife.BindView;
@@ -125,6 +129,9 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
     }
 
     private void doLogin(String qrid) {
+        String result = SystemConfigSp.instance().getStrConfig(SystemConfigSp.SysCfgDimension.NAVIINFO);
+        NaviRes naviRes = new Gson().fromJson(result, NaviRes.class);
+        CommLib.instance().setNaviRes(naviRes);
         QRCodeManager.init(this);
         QRCodeManager.instance().getQROper(qrid, new QRCodeManager.ResultCallback<String>() {
             @Override

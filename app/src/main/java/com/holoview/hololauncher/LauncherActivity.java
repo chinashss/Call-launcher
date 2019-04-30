@@ -117,7 +117,7 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
         initIMService();
         EventBus.getDefault().register(this);
         initExtraAppList();
-        checkWifi();
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
@@ -127,6 +127,17 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
 
     }
 
+    @Override
+    public void onBackPressed() {
+        return;
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkWifi();
+    }
 
     private void checkLogin(int position) {
         if (TextUtils.isEmpty(HoloLauncherApp.token)) {
