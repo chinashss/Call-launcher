@@ -48,10 +48,12 @@ public class HoloLauncherApp extends MultiDexApplication {
     }
 
     private void initBugly() {
-        Bugly.init(getApplicationContext(), "1abb274371", false);
-        Bugly.setAppChannel(getApplicationContext(), "Holo");
+        Beta.upgradeDialogLayoutId = R.layout.activity_bugly_upgrade;
+        Beta.tipsDialogLayoutId = R.layout.activity_bugly_upgrade;
         Beta.autoInit = true;
         Beta.autoCheckUpgrade = true;
+        Bugly.init(getApplicationContext(), "1abb274371", false);
+        Bugly.setAppChannel(getApplicationContext(), "Holo");
     }
 
     public static HoloLauncherApp getApp() {
