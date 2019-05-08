@@ -58,7 +58,6 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
      */
     public void setupCameraPreview(final CameraWrapper cameraWrapper) {
         this.cameraWrapper = cameraWrapper;
-
         if (this.cameraWrapper != null) {
             removeAllViews();
             cameraPreview = new CameraPreview(getContext(), cameraWrapper, this, new CameraPreview.FocusAreaSetter() {

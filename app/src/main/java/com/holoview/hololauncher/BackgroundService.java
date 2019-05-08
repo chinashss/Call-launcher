@@ -8,34 +8,24 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.holoview.aidl.AudioMessage;
 import com.holoview.aidl.ProcessServiceIAidl;
 import com.hv.imlib.HoloMessage;
 import com.hv.imlib.ImLib;
-import com.hv.imlib.model.Conversation;
 import com.hv.imlib.model.Message;
 import com.hv.imlib.model.message.ImageMessage;
 import com.trios.voicecmd.VoiceCmdEngine;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
 
 import cn.holo.call.bean.message.ArMarkMessage;
 import cn.holo.call.bean.message.CallAcceptMessage;
@@ -76,7 +66,6 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
             Notification notification = new Notification.Builder(getApplicationContext(), "launcher").build();
             startForeground(9927, notification);
         }
-        EventBus.getDefault().register(this);
         createServer();
 
     }
@@ -123,12 +112,11 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
 
             @Override
             public void onFailure(ImLib.ErrorCode err) {
-                String a = "";
             }
 
             @Override
             public void onTokenIncorrect() {
-                String a = "";
+
             }
         });
     }
@@ -147,7 +135,6 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
         if (mProcessAidl != null) {
             unbindService(conn);
         }
-        EventBus.getDefault().unregister(this);
         ImLib.instance().disconnect();
     }
 
@@ -164,21 +151,14 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
         holoMessage.setAction(action);
         try {
             if (mProcessAidl != null) {
-                mProcessAidl.sendMessage(JSON.toJSONString(holoMessage));
+                String json = JSON.toJSONString(holoMessage);
+                Log.i("lipengfei", json);
+                mProcessAidl.sendMessage(json);
             }
         } catch (RemoteException e) {
             e.printStackTrace();
         }
         return false;
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onReceive(HoloMessage message) {
-        try {
-            mProcessAidl.sendMessage(JSON.toJSONString(message));
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
     }
 
 

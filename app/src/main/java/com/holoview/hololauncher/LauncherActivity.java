@@ -355,7 +355,6 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
             String result = SystemConfigSp.instance().getStrConfig(SystemConfigSp.SysCfgDimension.NAVIINFO);
             NaviRes naviRes = new Gson().fromJson(result, NaviRes.class);
             /**知道要跳转应用的包命与目标Activity*/
-            SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
             Intent intent = getPackageManager().getLaunchIntentForPackage(app.getPackageName());
             if (app.isNeedLogin()) {
                 intent.putExtra(Constants.CALL_LIST, JSON.toJSONString(HoloLauncherApp.call_list));
