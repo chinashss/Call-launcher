@@ -422,26 +422,29 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
 
     public void connSuccss() {
         connection = WifiConnection.getInstance(LauncherActivity.this);
-        tvNetworkSsid.setText("网络链接成功！已连接至：" + connection.getWifiInfo().getSSID());
-        if (HoloLauncherApp.isActivityTop(ScanWifiActivity.class, LauncherActivity.this)) {
-            ActivityCollector.closeActivity(ScanWifiActivity.class);
-        }
-        next();
-        ivNetworkStateSuccess.setVisibility(View.VISIBLE);
-        llViewNetworkStateContent.setVisibility(View.VISIBLE);
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        llViewNetworkStateContent.setVisibility(View.GONE);
-                    }
-                });
+        if (connection!=null&&connection.getWifiInfo()!=null&&connection.getWifiInfo().getSSID()!=null){
+            tvNetworkSsid.setText("网络链接成功！已连接至：" + connection.getWifiInfo().getSSID());
+            if (HoloLauncherApp.isActivityTop(ScanWifiActivity.class, LauncherActivity.this)) {
+                ActivityCollector.closeActivity(ScanWifiActivity.class);
             }
-        };
-        Timer timer = new Timer();
-        timer.schedule(task, 2000);//3秒后执行TimeTask的run方法
+            next();
+            ivNetworkStateSuccess.setVisibility(View.VISIBLE);
+            llViewNetworkStateContent.setVisibility(View.VISIBLE);
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            llViewNetworkStateContent.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            };
+            Timer timer = new Timer();
+            timer.schedule(task, 2000);//3秒后执行TimeTask的run方法
+        }
+
 
         focusView();
     }
@@ -522,7 +525,6 @@ public class LauncherActivity extends BaseActivity implements AppItemAdapter.OnO
                     Log.e("TAG", "isConnected:" + isConnected);
                     if (isConnected) {
                         status = 2;
-
                         connSuccss();
                     } else {
                         reCheck();
