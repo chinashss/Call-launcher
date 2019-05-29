@@ -43,4 +43,16 @@ public class LauncherApp {
     public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        LauncherApp another = (LauncherApp) obj;
+        return this.packageName.equals(another.getPackageName());
+    }
 }

@@ -67,7 +67,6 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
             startForeground(9927, notification);
         }
         createServer();
-
     }
 
 

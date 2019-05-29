@@ -42,6 +42,7 @@ public class ScanWifiActivity extends BaseActivity implements ZBarScannerView.Re
         ButterKnife.bind(this);
         autoScannerView = new ZBarScannerView(this, new WifiViewFinderView(this), this);
         flScanWifiContont.addView(autoScannerView);
+        autoScannerView.stopCamera();
     }
 
     @Override
@@ -57,7 +58,6 @@ public class ScanWifiActivity extends BaseActivity implements ZBarScannerView.Re
             intent.putExtra(Constants.AP_CONFIG, qrcode);
             setResult(Activity.RESULT_OK, intent);
             finish();
-            return;
         }
     }
 
@@ -89,10 +89,9 @@ public class ScanWifiActivity extends BaseActivity implements ZBarScannerView.Re
     private Handler handler = new Handler();
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         handler.removeCallbacksAndMessages(null);
         autoScannerView.stopCamera();//释放相机资源等各种资源
     }
-
 }

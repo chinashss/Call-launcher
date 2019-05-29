@@ -44,7 +44,6 @@ public class WifiConnection {
     }
 
 
-
     /**
      * 网络是否连接
      */
@@ -116,7 +115,7 @@ public class WifiConnection {
     public boolean connectWifi(final String ssid, final String password,
                                final SecurityMode mode) {
         WifiInfo info = getWifiInfo();
-
+        mNetworkID = -1;
         if (isWifiConnected() && info != null
                 && info.getSSID().equals("\"" + ssid + "\"")) {
             Log.d(TAG, "connectWifi---->" + info.toString() + " ");

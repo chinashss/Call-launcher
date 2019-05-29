@@ -3,8 +3,8 @@ package cn.szx.zbarscanner.base;
 import android.hardware.Camera;
 
 public class CameraWrapper {
-    public final Camera camera;
-    public final int cameraId;
+    public Camera camera;
+    public int cameraId;
 
     private CameraWrapper(Camera camera, int cameraId) {
         this.camera = camera;

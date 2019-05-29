@@ -73,6 +73,19 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         }
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        if (this.cameraWrapper!=null&&this.cameraWrapper.camera != null) {
+            this.cameraWrapper.camera.stopPreview();
+            this.cameraWrapper.camera.release();
+            this.cameraWrapper.camera = null;
+        }
+
+
+    }
+
     /**
      * 设置对焦区域
      */
@@ -304,4 +317,5 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
     public void setShouldAdjustFocusArea(boolean shouldAdjustFocusArea) {
         this.shouldAdjustFocusArea = shouldAdjustFocusArea;
     }
+
 }

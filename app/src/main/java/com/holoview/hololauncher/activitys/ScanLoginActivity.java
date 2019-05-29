@@ -124,8 +124,7 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
     @Override
     protected void onPause() {
         super.onPause();
-        handler.removeCallbacksAndMessages(null);
-        autoScannerView.stopCamera();//释放相机资源等各种资源
+
     }
 
     private void doLogin(String qrid) {
@@ -136,8 +135,7 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
         QRCodeManager.instance().getQROper(qrid, new QRCodeManager.ResultCallback<String>() {
             @Override
             public void onSuccess(final String s) {
-                String qrcode = s;
-                final String[] arryText = qrcode.split("\\;");
+                final String[] arryText = s.split("\\;");
                 final String token = arryText[0]; //"5/4W3IOJLBkwVxGeZQyIx43DFx6nMFVOcjMQA3fUGNraaH0duT96EL0Fptb6YkP2sokbShdXitb+qXdFDsuNhJ0Yh0HM78YtbSs5tWG+ZGAU81BFPxPxUAWJq+gkCKp0RD8uuA75Ti0PPmmK6NMQysTdfzYuOMUEl2oZydOOCcMlRuo2X/x5NtEF0d68XYpI";//arryText[0];
                 final String roomId = arryText[1];
 
@@ -145,111 +143,12 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
                 HoloLauncherApp.roomId = Long.parseLong(roomId);
                 HoloLauncherApp.converstaiontype = Integer.parseInt(arryText[2]);
 
-
-
-                if (token.equals("LIVE")) {
-                    final String cinverstaiontype = arryText[2];
-                    ProtoConstant.APP_ID = "000001";
-                    if (arryText.length >= 4) {
-                        String appid = arryText[4];
-                        ProtoConstant.APP_ID = appid;
-                    }
-                    IMNaviManager.instance().navi(new IMNaviManager.OnNaviListener() {
-                        @Override
-                        public void onSuccess() {
-
-                            if (ImLib.instance().getCurrentConnectionStatus() == CONNECTED) {
-                                ImLib.instance().logout();
-                            }
-                            ImLib.instance().connect(roomId, new ImLib.ConnectCallback() {
-                                @Override
-                                public void onLocalSuccess(long userid) {
-
-                                }
-
-                                @Override
-                                public void onSuccess(long userid) {
-                                    if (arryText.length >= 4) {
-                                        String s = arryText[3];
-                                        String appid = arryText[4];
-                                        sp.edit().putString("name", s).apply();
-                                        if (!appid.isEmpty()) {
-                                            sp.edit().putString("APPID", appid).apply();
-                                        }
-                                    }
-                                    sp.edit().putString("token", roomId).apply();
-                                    sp.edit().putString("uid", cinverstaiontype).apply();
-                                    HoloLauncherApp.token = roomId;
-                                    finish();
-                                }
-
-                                @Override
-                                public void onFailure(ImLib.ErrorCode err) {
-                                    Toast.makeText(getBaseContext(), "token验证错误，重新扫码", Toast.LENGTH_SHORT).show();
-                                    reScan();
-                                }
-
-                                @Override
-                                public void onTokenIncorrect() {
-                                    Toast.makeText(getBaseContext(), "token验证错误，重新扫码", Toast.LENGTH_SHORT).show();
-                                    reScan();
-                                }
-                            });
-
-                        }
-
-                        @Override
-                        public void onFailure() {
-                            Toast.makeText(getBaseContext(), "二维码错误，请选择个人二维码扫描", Toast.LENGTH_SHORT).show();
-                            reScan();
-                        }
-                    });
-
-                    return;
-
-                } else if (token.equals("Asset")) {
-                    SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
-                    String id = sp.getString("uid", "0");
-                    long uid = Long.parseLong(id);
-                    AssetsManager.instance().subscribeIOTAsset(uid, Long.parseLong(roomId), "", "", new AssetsManager.ResultCallback<Boolean>() {
-                        @Override
-                        public void onSuccess(Boolean aBoolean) {
-                        }
-
-                        @Override
-                        public void onError(final String errString) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getBaseContext(), errString, Toast.LENGTH_SHORT).show();
-                                    reScan();
-                                }
-                            });
-
-
-                        }
-
-                        @Override
-                        public void onFailure(final ErrorCode errorCode) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getBaseContext(), errorCode.getMessage(), Toast.LENGTH_SHORT).show();
-                                    reScan();
-                                }
-                            });
-
-                        }
-                    });
-                } else {
-                    HoloLauncherApp.call_list.clear();
-                    for (int i = 3; i < arryText.length; i++) {
-                        HoloLauncherApp.call_list.add(Long.parseLong(arryText[i]));
-                    }
-                    setResult(Activity.RESULT_OK, getIntent());
-                    finish();
-
+                HoloLauncherApp.call_list.clear();
+                for (int i = 3; i < arryText.length; i++) {
+                    HoloLauncherApp.call_list.add(Long.parseLong(arryText[i]));
                 }
+                setResult(Activity.RESULT_OK, getIntent());
+                finish();
             }
 
             @Override
@@ -265,5 +164,12 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
+        autoScannerView.stopCamera();//释放相机资源等各种资源
     }
 }
