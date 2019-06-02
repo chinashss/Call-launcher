@@ -3,12 +3,26 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
+
+    signingConfigs {
+        release {
+            //签名文件路径，我是放到项目中了
+            storeFile file { "D:\\backup\\kk-keystore.jks" }
+            //签名密码
+            storePassword "Mr.505541778"
+            //别名
+            keyAlias "mrkk"
+            //别名密码
+            keyPassword "Mr.505541778"
+        }
+    }
     defaultConfig {
+//        applicationId "com.huawei.android.launcher"
         applicationId "com.holoview.hololauncher"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 6
-        versionName "1.0.6"
+        versionCode 8
+        versionName "1.0.8"
         multiDexEnabled true
     }
     buildTypes {
@@ -31,6 +45,9 @@ android {
                     }
             }
         }
+        debug{
+            signingConfig signingConfigs.release
+        }
     }
 }
 
@@ -50,6 +67,8 @@ dependencies {
 //    implementation 'holo.com:tv-widget-lib:1.0.0'
     implementation 'holo.com:tv-lib:1.0.0'
 
+
+    implementation 'com.tencent:mmkv:1.0.17'
 
 
 //Material Dialog生成

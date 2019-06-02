@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
@@ -18,12 +19,14 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.holoview.aidl.AudioMessage;
 import com.holoview.aidl.ProcessServiceIAidl;
+import com.holoview.hololauncher.bean.ImEvent;
 import com.hv.imlib.HoloMessage;
 import com.hv.imlib.ImLib;
 import com.hv.imlib.model.Message;
 import com.hv.imlib.model.message.ImageMessage;
 import com.trios.voicecmd.VoiceCmdEngine;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -101,11 +104,24 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
             @Override
             public void onLocalSuccess(long userid) {
                 // 本地登录（从缓存登录后返回的结果
-                HoloLauncherApp.userSelfId = userid;
+//                ImEvent imEvent = new ImEvent();
+//                Bundle bundle = new Bundle();
+//                bundle.putLong("userId", userid);
+//                imEvent.setAction(3050);
+//                imEvent.setData(bundle);
+//                EventBus.getDefault().post(imEvent);
+//                HoloLauncherApp.userSelfId = userid;
             }
 
             @Override
             public void onSuccess(long userid) {
+                ImEvent imEvent = new ImEvent();
+                Bundle bundle = new Bundle();
+                bundle.putLong("userId", userid);
+                imEvent.setAction(3051);
+                imEvent.setData(bundle);
+                EventBus.getDefault().post(imEvent);
+
                 HoloLauncherApp.userSelfId = userid;
             }
 

@@ -31,7 +31,8 @@
         tools:overrideLibrary="com.realview.commonlibrary">
 
 
-        <activity android:name=".LauncherActivity">
+        <activity android:name=".LauncherActivity"
+            android:launchMode="standard">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,7 +46,7 @@
 
         <activity
             android:name=".activitys.ScanLoginActivity"
-            android:launchMode="singleTask" />
+            android:launchMode="standard" />
 
         <service
             android:name=".BackgroundService"

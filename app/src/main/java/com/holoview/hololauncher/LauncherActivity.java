@@ -2,26 +2,35 @@ package com.holoview.hololauncher;
 
 import android.animation.Animator;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.holoview.hololauncher.activitys.ScanLoginActivity;
 import com.holoview.hololauncher.bean.Constants;
+import com.holoview.hololauncher.bean.ImEvent;
 import com.hv.imlib.DB.sp.SystemConfigSp;
 import com.hv.imlib.HoloMessage;
 import com.hv.imlib.ImLib;
 import com.hv.imlib.protocol.http.NaviRes;
+import com.tencent.mmkv.MMKV;
 import com.trios.voicecmd.AudioOrderMessage;
 import com.trios.voicecmd.VoiceCmdEngine;
 
@@ -31,9 +40,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -42,26 +53,14 @@ import butterknife.OnClick;
  * This Project is android-glass-launcher
  */
 public class LauncherActivity extends BaseActivity {
-//    @BindView(R.id.rv_launcher_app_list)
-//    RecyclerView rvLauncherAppList;
-//
-//    RelativeLayout llDialogErrorContent;
-//    @BindView(R.id.rv_system_list)
-//    RecyclerView rvSystemAppsList;
-//
-//
-//    @BindView(R.id.rv_option_list)
-//    RecyclerView rvOptionList;
-//    @BindView(R.id.tv_wifi_status)
-//    TextView tvWifiStatus;
+    @BindView(R.id.tv_last_call_time)
+    TextView tvLastCallTime;
+    @BindView(R.id.tv_last_call_info)
+    TextView tvLastCallInfo;
+    NetworkConnectChangedReceiver networkConnectChangedReceiver;
+    @BindView(R.id.iv_wifi_status)
+    ImageView ivWifiStatus;
 
-
-//    private List<PackageBean> packageNames = new ArrayList<>();
-//    private List<LauncherApp> launcherApps = new ArrayList<>();
-//    private List<LauncherApp> SystemApps = new ArrayList<>();
-//    NetworkConnectChangedReceiver networkConnectChangedReceiver;
-
-//    AppItemAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,9 +74,8 @@ public class LauncherActivity extends BaseActivity {
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-
-//        networkConnectChangedReceiver = new NetworkConnectChangedReceiver();
-//        registerReceiver(networkConnectChangedReceiver, filter);
+        networkConnectChangedReceiver = new NetworkConnectChangedReceiver();
+        registerReceiver(networkConnectChangedReceiver, filter);
 
     }
 
@@ -87,9 +85,29 @@ public class LauncherActivity extends BaseActivity {
         return;
     }
 
+    void initTask() {
+        long lastCallTime = MMKV.defaultMMKV().decodeLong("last_call_time", 0L);
+        if (lastCallTime == 0L) {
+            tvLastCallTime.setVisibility(View.GONE);
+        } else {
+            tvLastCallTime.setVisibility(View.VISIBLE);
+            DateFormat df2 = new SimpleDateFormat("MM-dd/HH:mm:ss");
+            String time = df2.format(new Date(lastCallTime));
+            tvLastCallTime.setText(time);
+        }
+        tvLastCallInfo.setText("工单：");
+        if (HoloLauncherApp.roomId != 0L) {
+            tvLastCallInfo.setText("工单：" + HoloLauncherApp.roomId);
+        } else {
+            tvLastCallInfo.setText("工单：空");
+        }
+
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        initTask();
     }
 
 
@@ -162,7 +180,7 @@ public class LauncherActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-//        unregisterReceiver(networkConnectChangedReceiver);
+        unregisterReceiver(networkConnectChangedReceiver);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -170,6 +188,7 @@ public class LauncherActivity extends BaseActivity {
         switch (message.getType()) {
             case VoiceCmdEngine.VoiceCmd_CALL:
                 Toast.makeText(getBaseContext(), "触发呼叫命令", Toast.LENGTH_SHORT).show();
+                callMajor();
 //                onItemClick(0);
                 break;
             case VoiceCmdEngine.VoiceCmd_Setting:
@@ -185,6 +204,15 @@ public class LauncherActivity extends BaseActivity {
     }
 
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onImEvent(ImEvent imEvent) {
+        if (imEvent.getAction() == 3051) {
+            long userId = imEvent.getData().getLong("userId");
+            callMajor();
+        }
+    }
+
+
     @OnClick(R.id.rf_wifi_conn)
     public void onWifiConn() {
         Intent intent = getPackageManager().getLaunchIntentForPackage("com.holoview.wificonnecter");
@@ -194,15 +222,9 @@ public class LauncherActivity extends BaseActivity {
 
     @OnClick(R.id.rf_recall_communication)
     public void reCommunication() {
-        initIMService();
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                callMajor();
-            }
-        };
-        Timer timer = new Timer();
-        timer.schedule(task, 1500);//3秒后执行TimeTask的run方法
+        if (!TextUtils.isEmpty(HoloLauncherApp.token)) {
+            callMajor();
+        }
     }
 
     @OnClick(R.id.rf_clear_history)
@@ -212,7 +234,8 @@ public class LauncherActivity extends BaseActivity {
         HoloLauncherApp.token = "";
         HoloLauncherApp.roomId = 0L;
         HoloLauncherApp.converstaiontype = 0;
-        Toast.makeText(this, "退出成功", Toast.LENGTH_LONG).show();
+        initTask();
+//        Toast.makeText(this, "退出成功", Toast.LENGTH_LONG).show();
     }
 
     @OnClick(R.id.rf_setting)
@@ -220,34 +243,37 @@ public class LauncherActivity extends BaseActivity {
         try {
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.android.settings");
             startActivity(intent);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    @OnClick(R.id.rf_call_major)
+
     public void callMajor() {
-        if (TextUtils.isEmpty(HoloLauncherApp.token)) {
-            Intent intent = new Intent(this, ScanLoginActivity.class);
-            startActivityForResult(intent, Constants.ACTION_START_MAJOR);
-            return;
-        }
         try {
             String result = SystemConfigSp.instance().getStrConfig(SystemConfigSp.SysCfgDimension.NAVIINFO);
             NaviRes naviRes = new Gson().fromJson(result, NaviRes.class);
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.realview.holo.call");
-            intent.putExtra(Constants.CALL_LIST, JSON.toJSONString(HoloLauncherApp.call_list));
+            String target = JSON.toJSONString(HoloLauncherApp.call_list);
+            intent.putExtra(Constants.CALL_LIST, target);
             intent.putExtra("userSelfId", HoloLauncherApp.userSelfId);
             intent.putExtra("converstaionType", HoloLauncherApp.converstaiontype);
             intent.putExtra("roomId", HoloLauncherApp.roomId);
             intent.putExtra("navi", result);
             intent.putExtra("wss", naviRes.getResult().getSslmcusvr().getProto() + "://" + naviRes.getResult().getSslmcusvr().getUrl() + "/groupcall");
             startActivity(intent);
-        }catch (Exception e){
+            MMKV.defaultMMKV().encode("last_call_time", System.currentTimeMillis());
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    @OnClick(R.id.rf_call_major_new)
+    public void callMajorNew() {
+        clearHistory();
+        Intent intent = new Intent(this, ScanLoginActivity.class);
+        startActivityForResult(intent, Constants.ACTION_START_MAJOR);
     }
 
 
@@ -258,7 +284,7 @@ public class LauncherActivity extends BaseActivity {
             return;
         }
         if (requestCode == Constants.ACTION_START_MAJOR) {
-            callMajor();
+            initIMService();
         }
     }
 //
@@ -276,71 +302,73 @@ public class LauncherActivity extends BaseActivity {
 //    }
 //
 
+
+    class NetworkConnectChangedReceiver extends BroadcastReceiver {
+
+        private String getConnectionType(int type) {
+            String connType = "";
+            if (type == ConnectivityManager.TYPE_MOBILE) {
+                connType = "数据";
+            } else if (type == ConnectivityManager.TYPE_WIFI) {
+                connType = "WIFI";
+            }
+            return connType;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())) {// 监听wifi的打开与关闭，与wifi的连接无关
+                int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
+                Log.e("TAG", "wifiState:" + wifiState);
+                switch (wifiState) {
+                    case WifiManager.WIFI_STATE_DISABLED:
+                        break;
+                    case WifiManager.WIFI_STATE_DISABLING:
+                        break;
+                }
+            }
+            // 监听wifi的连接状态即是否连上了一个有效无线路由
+            if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(intent.getAction())) {
+                Parcelable parcelableExtra = intent
+                        .getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                if (null != parcelableExtra) {
+                    // 获取联网状态的NetWorkInfo对象
+                    NetworkInfo networkInfo = (NetworkInfo) parcelableExtra;
+                    //获取的State对象则代表着连接成功与否等状态
+                    NetworkInfo.State state = networkInfo.getState();
+                    //判断网络是否已经连接
+                    boolean isConnected = state == NetworkInfo.State.CONNECTED;
+                    if (isConnected) {
+                        ivWifiStatus.setImageResource(R.mipmap.ic_tab_wifi_conn);
+                    } else {
+                        ivWifiStatus.setImageResource(R.mipmap.ic_tab_wifi_disconn);
+                    }
+                }
+            }
+            // 监听网络连接，包括wifi和移动数据的打开和关闭,以及连接上可用的连接都会接到监听
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                //获取联网状态的NetworkInfo对象
+                NetworkInfo info = intent
+                        .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+                if (info != null) {
+                    //如果当前的网络连接成功并且网络连接可用
+                    if (NetworkInfo.State.CONNECTED == info.getState() && info.isAvailable()) {
+                        if (info.getType() == ConnectivityManager.TYPE_WIFI
+                                || info.getType() == ConnectivityManager.TYPE_MOBILE) {
+                            ivWifiStatus.setImageResource(R.mipmap.ic_tab_wifi_conn);
+                        }
+                    } else {
+                        ivWifiStatus.setImageResource(R.mipmap.ic_tab_wifi_disconn);
+                    }
+                }
+            }
+        }
+    }
+
 }
 
-//
-//    class NetworkConnectChangedReceiver extends BroadcastReceiver {
-//
-//        private String getConnectionType(int type) {
-//            String connType = "";
-//            if (type == ConnectivityManager.TYPE_MOBILE) {
-//                connType = "数据";
-//            } else if (type == ConnectivityManager.TYPE_WIFI) {
-//                connType = "WIFI";
-//            }
-//            return connType;
-//        }
-//
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())) {// 监听wifi的打开与关闭，与wifi的连接无关
-//                int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
-//                Log.e("TAG", "wifiState:" + wifiState);
-//                switch (wifiState) {
-//                    case WifiManager.WIFI_STATE_DISABLED:
-//                        break;
-//                    case WifiManager.WIFI_STATE_DISABLING:
-//                        break;
-//                }
-//            }
-//            // 监听wifi的连接状态即是否连上了一个有效无线路由
-//            if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(intent.getAction())) {
-//                Parcelable parcelableExtra = intent
-//                        .getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-//                if (null != parcelableExtra) {
-//                    // 获取联网状态的NetWorkInfo对象
-//                    NetworkInfo networkInfo = (NetworkInfo) parcelableExtra;
-//                    //获取的State对象则代表着连接成功与否等状态
-//                    NetworkInfo.State state = networkInfo.getState();
-//                    //判断网络是否已经连接
-//                    boolean isConnected = state == NetworkInfo.State.CONNECTED;
-//                    if (isConnected) {
-//                        tvWifiStatus.setText("Wifi已连接");
-//                    } else {
-//                        tvWifiStatus.setText("Wifi已断开");
-//                    }
-//                }
-//            }
-//            // 监听网络连接，包括wifi和移动数据的打开和关闭,以及连接上可用的连接都会接到监听
-//            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-//                //获取联网状态的NetworkInfo对象
-//                NetworkInfo info = intent
-//                        .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-//                if (info != null) {
-//                    //如果当前的网络连接成功并且网络连接可用
-//                    if (NetworkInfo.State.CONNECTED == info.getState() && info.isAvailable()) {
-//                        if (info.getType() == ConnectivityManager.TYPE_WIFI
-//                                || info.getType() == ConnectivityManager.TYPE_MOBILE) {
-//                            tvWifiStatus.setText(getConnectionType(info.getType()) + "已连接");
-//                        }
-//                    } else {
-//                        tvWifiStatus.setText(getConnectionType(info.getType()) + "已断开");
-//                        Log.i("TAG", getConnectionType(info.getType()) + "断开");
-//                    }
-//                }
-//            }
-//        }
-//    }
+
+
 
 
 

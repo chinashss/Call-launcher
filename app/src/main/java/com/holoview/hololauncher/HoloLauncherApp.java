@@ -15,6 +15,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.tencent.bugly.Bugly;
 import com.tencent.bugly.beta.Beta;
+import com.tencent.mmkv.MMKV;
 import com.trios.voicecmd.VoiceCmdEngine;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class HoloLauncherApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         app = this;
+        MMKV.initialize(this);
         SystemConfigSp.instance().init(this);
         initVoice();
         initBugly();

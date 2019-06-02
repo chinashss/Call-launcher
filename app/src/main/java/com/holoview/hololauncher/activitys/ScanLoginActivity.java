@@ -46,7 +46,6 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
     @BindView(R.id.fl_scan_wifi_contont)
     FrameLayout flScanWifiContont;
     private static final int REQUEST_CAMERA_PERMISSION = 0;
-    private SharedPreferences sp;
     private ZBarScannerView autoScannerView;
 
     @Override
@@ -54,7 +53,6 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi_login);
         ButterKnife.bind(this);
-        sp = getSharedPreferences("config", MODE_PRIVATE);
         autoScannerView = new ZBarScannerView(this, new ViewFinderView(this), this);
         flScanWifiContont.addView(autoScannerView);
     }
@@ -136,7 +134,7 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
             @Override
             public void onSuccess(final String s) {
                 final String[] arryText = s.split("\\;");
-                final String token = arryText[0]; //"5/4W3IOJLBkwVxGeZQyIx43DFx6nMFVOcjMQA3fUGNraaH0duT96EL0Fptb6YkP2sokbShdXitb+qXdFDsuNhJ0Yh0HM78YtbSs5tWG+ZGAU81BFPxPxUAWJq+gkCKp0RD8uuA75Ti0PPmmK6NMQysTdfzYuOMUEl2oZydOOCcMlRuo2X/x5NtEF0d68XYpI";//arryText[0];
+                final String token = arryText[0];
                 final String roomId = arryText[1];
 
                 HoloLauncherApp.token = token;
