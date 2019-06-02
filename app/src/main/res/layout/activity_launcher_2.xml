@@ -248,10 +248,10 @@
             android:id="@+id/iv_hintImg"
             android:layout_width="64dp"
             android:layout_height="55dp"
-            android:background="@mipmap/wifi_white"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="20dp"
+            android:background="@mipmap/wifi_white"
             android:focusable="false"
 
             />
