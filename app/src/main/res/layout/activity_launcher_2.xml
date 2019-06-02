@@ -47,7 +47,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:focusable="false"
-            android:gravity="center">
+            android:gravity="center"
+            android:padding="10dp">
 
 
             <org.evilbinary.tv.widget.RoundedFrameLayout
@@ -55,21 +56,11 @@
                 android:layout_width="209dp"
                 android:layout_height="280dp"
                 android:layout_marginLeft="30dp"
-                android:layout_margin="2dp"
                 android:background="@mipmap/bg_app_match"
                 android:focusable="true"
                 android:layout_alignParentLeft="true"
                 app:radius="12dp">
 
-                <TextView
-                    android:id="@+id/tv_last_call_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    tools:text="09/09 14:23"
-                    android:textAlignment="viewEnd"/>
 
 
                 <ImageView
@@ -92,7 +83,41 @@
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    tools:text="专家：546546464\n工单：64646476" />
+
+                    tools:text="专家：546546464\n工单：64646476"
+                    android:visibility="gone"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="90dp"
+                    android:layout_gravity="bottom"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+                    <TextView
+                        android:id="@+id/tv_last_call_time"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.5"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/naviWordColor"
+                        android:textSize="16sp"
+                        tools:text="09-09"
+                        android:textAlignment="viewStart"
+                        android:layout_marginLeft="16dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_last_call_time_hour"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.5"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/naviWordColor"
+                        android:textSize="16sp"
+                        tools:text="09-09 14:23"
+                        android:textAlignment="viewEnd"
+                        android:layout_marginRight="16dp"/>
+                </LinearLayout>
+
+
 
                 <TextView
                     android:layout_width="match_parent"
@@ -102,7 +127,7 @@
                     android:layout_marginBottom="25dp"
                     android:text="继续上次会话"
                     android:textColor="@color/white"
-                    android:textSize="30sp" />
+                    android:textSize="@dimen/btn_tiltle_text_size" />
 
             </org.evilbinary.tv.widget.RoundedFrameLayout>
 
@@ -132,7 +157,7 @@
                     android:layout_marginBottom="25dp"
                     android:text="专家连线"
                     android:textColor="@color/white"
-                    android:textSize="30sp" />
+                    android:textSize="@dimen/btn_tiltle_text_size" />
 
             </org.evilbinary.tv.widget.RoundedFrameLayout>
 
@@ -163,7 +188,7 @@
                     android:gravity="center"
                     android:text="网络连接"
                     android:textColor="@color/white"
-                    android:textSize="30sp" />
+                    android:textSize="@dimen/btn_tiltle_text_size" />
 
             </org.evilbinary.tv.widget.RoundedFrameLayout>
 
@@ -196,7 +221,7 @@
                     android:gravity="center"
                     android:text="清空会话记录"
                     android:textColor="@color/white"
-                    android:textSize="30sp" />
+                    android:textSize="@dimen/btn_tiltle_text_size" />
 
             </org.evilbinary.tv.widget.RoundedFrameLayout>
 
@@ -206,10 +231,12 @@
                 android:layout_width="209dp"
                 android:layout_height="280dp"
                 android:layout_marginLeft="30dp"
-                android:layout_toRightOf="@id/rf_clear_history"
+                android:layout_marginRight="6dp"
+                android:layout_toRightOf="@id/rf_wifi_conn"
                 android:background="@mipmap/bg_app_match"
                 android:focusable="true"
                 app:radius="12dp">
+
 
                 <ImageView
                     android:layout_width="64dp"
@@ -226,7 +253,7 @@
                     android:layout_marginBottom="25dp"
                     android:text="设置"
                     android:textColor="@color/white"
-                    android:textSize="30sp" />
+                    android:textSize="@dimen/btn_tiltle_text_size" />
 
             </org.evilbinary.tv.widget.RoundedFrameLayout>
 
@@ -248,10 +275,10 @@
             android:id="@+id/iv_hintImg"
             android:layout_width="64dp"
             android:layout_height="55dp"
-            android:background="@mipmap/wifi_white"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="20dp"
+            android:background="@mipmap/wifi_white"
             android:focusable="false"
 
             />
