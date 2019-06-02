@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Hololauncher</string>
+    <string name="title_desktop">桌面</string>
+
+
+    <string name="wifi_unconnect_try_add"><![CDATA[<font color="#FFFFFF">未连接网络！</font>请尝试“网络连接”进行连网。]]></string>
+    <string name="wifi_connected_can_switch"><![CDATA[<font color="#FFFFFF">连网成功！</font>已连接至“%1$s”。]]></string>
+    <string name="wifi_connecting_please_wait"><![CDATA[<font color="#FFFFFF">正在连接到“%1$s”。</font>请稍候。]]></string>
 </resources>

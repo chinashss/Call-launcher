@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -61,6 +63,14 @@ public class LauncherActivity extends BaseActivity {
     @BindView(R.id.iv_wifi_status)
     ImageView ivWifiStatus;
 
+    @BindView(R.id.iv_hintImg)
+    ImageView ivHintWifiStatus;
+
+    @BindView(R.id.tv_hintMsg)
+    TextView tvHintWifiStatus;
+
+
+    private WifiManager mWifiManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,12 +80,14 @@ public class LauncherActivity extends BaseActivity {
         initIMService();
         EventBus.getDefault().register(this);
         focusView();
+        mWifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         networkConnectChangedReceiver = new NetworkConnectChangedReceiver();
-        registerReceiver(networkConnectChangedReceiver, filter);
+        getApplicationContext().registerReceiver(networkConnectChangedReceiver, filter);
 
     }
 
@@ -362,6 +374,40 @@ public class LauncherActivity extends BaseActivity {
                     }
                 }
             }
+
+
+            NetworkInfo mInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            final WifiInfo mWifiInfo = mWifiManager.getConnectionInfo();
+
+            String hintMsg = getString(R.string.wifi_unconnect_try_add);
+            ivHintWifiStatus.setBackgroundResource(R.mipmap.wifi_gray);
+
+            if (mInfo != null && mWifiInfo != null && mWifiInfo.getSSID() != null && mInfo.isConnectedOrConnecting()){
+                Log.i("LauncherAcitivity", "onNetStateChange ssid:" + mWifiInfo.getSSID() + " state:" + mInfo.getState());
+
+                if (mWifiInfo.getSSID().equals("<unknown ssid>")){
+                }else {
+
+                    String ssid = mWifiInfo.getSSID();
+                    ssid = ssid.substring(1, ssid.length() - 1);
+
+                    if (mInfo.isConnected()){
+                        hintMsg = getString(R.string.wifi_connected_can_switch, ssid);
+                        ivHintWifiStatus.setBackgroundResource(R.mipmap.wifi);
+                    }else if (mInfo.isConnectedOrConnecting()){
+                        hintMsg = getString(R.string.wifi_connecting_please_wait, ssid);
+                        ivHintWifiStatus.setBackgroundResource(R.mipmap.wifi_white);
+                    }
+
+                }
+
+
+            }else {
+                hintMsg = getString(R.string.wifi_unconnect_try_add);
+            }
+
+            tvHintWifiStatus.setText(Html.fromHtml(hintMsg));
+
         }
     }
 

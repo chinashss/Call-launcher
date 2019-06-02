@@ -4,18 +4,18 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
 
-    signingConfigs {
-        release {
-            //签名文件路径，我是放到项目中了
-            storeFile file { "D:\\backup\\kk-keystore.jks" }
-            //签名密码
-            storePassword "Mr.505541778"
-            //别名
-            keyAlias "mrkk"
-            //别名密码
-            keyPassword "Mr.505541778"
-        }
-    }
+//    signingConfigs {
+//        release {
+//            //签名文件路径，我是放到项目中了
+//            storeFile file { "D:\\backup\\kk-keystore.jks" }
+//            //签名密码
+//            storePassword "Mr.505541778"
+//            //别名
+//            keyAlias "mrkk"
+//            //别名密码
+//            keyPassword "Mr.505541778"
+//        }
+//    }
     defaultConfig {
 //        applicationId "com.huawei.android.launcher"
         applicationId "com.holoview.hololauncher"
@@ -45,9 +45,9 @@ android {
                     }
             }
         }
-        debug{
-            signingConfig signingConfigs.release
-        }
+//        debug{
+//            signingConfig signingConfigs.release
+//        }
     }
 }
 

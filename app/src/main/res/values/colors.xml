@@ -4,5 +4,9 @@
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="orange">#FFA500</color>
+    <color name="orangeDark">#FF877553</color>
+    <color name="white">#FFFFFF</color>
 
+    <color name="naviWordColor">#FFF6C6</color>
 </resources>
