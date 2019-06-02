@@ -40,8 +40,8 @@ public class WifiViewFinderView extends RelativeLayout implements IViewFinder {
     protected Paint borderPaint;
     private int lineOffsetCount = 0;
 
-    private String mScanTipContent = "放入框内自动扫描";
-    private int mScanTipFontSize = 30;
+    private String mScanTipContent = "放入框内，自动扫描";
+    private int mScanTipFontSize = 22;
     private Paint textPaint;
     private final int textMarinTop = 50;                                           //文字距离识别框的距离
 

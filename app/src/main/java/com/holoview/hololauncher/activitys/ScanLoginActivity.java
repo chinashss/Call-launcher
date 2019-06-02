@@ -70,7 +70,7 @@ public class ScanLoginActivity extends BaseActivity implements ZBarScannerView.R
             }
         });
         focusView();
-        autoScannerView = new ZBarScannerView(this, new ViewFinderView(this), this);
+        autoScannerView = new ZBarScannerView(this, new WifiViewFinderView(this), this);
         flScanWifiContont.addView(autoScannerView);
     }
 
