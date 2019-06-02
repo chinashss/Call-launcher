@@ -221,6 +221,14 @@ public class LauncherActivity extends BaseActivity {
         if (imEvent.getAction() == 3051) {
             long userId = imEvent.getData().getLong("userId");
             callMajor();
+        } else if (imEvent.getAction() == 3052) {
+            HoloLauncherApp.call_list.clear();
+            ImLib.instance().logout();
+            HoloLauncherApp.token = "";
+            HoloLauncherApp.roomId = 0L;
+            HoloLauncherApp.converstaiontype = 0;
+            initTask();
+            Toast.makeText(this, "您已被踢出，请重新登录。", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -382,19 +390,19 @@ public class LauncherActivity extends BaseActivity {
             String hintMsg = getString(R.string.wifi_unconnect_try_add);
             ivHintWifiStatus.setBackgroundResource(R.mipmap.wifi_gray);
 
-            if (mInfo != null && mWifiInfo != null && mWifiInfo.getSSID() != null && mInfo.isConnectedOrConnecting()){
+            if (mInfo != null && mWifiInfo != null && mWifiInfo.getSSID() != null && mInfo.isConnectedOrConnecting()) {
                 Log.i("LauncherAcitivity", "onNetStateChange ssid:" + mWifiInfo.getSSID() + " state:" + mInfo.getState());
 
-                if (mWifiInfo.getSSID().equals("<unknown ssid>")){
-                }else {
+                if (mWifiInfo.getSSID().equals("<unknown ssid>")) {
+                } else {
 
                     String ssid = mWifiInfo.getSSID();
                     ssid = ssid.substring(1, ssid.length() - 1);
 
-                    if (mInfo.isConnected()){
+                    if (mInfo.isConnected()) {
                         hintMsg = getString(R.string.wifi_connected_can_switch, ssid);
                         ivHintWifiStatus.setBackgroundResource(R.mipmap.wifi);
-                    }else if (mInfo.isConnectedOrConnecting()){
+                    } else if (mInfo.isConnectedOrConnecting()) {
                         hintMsg = getString(R.string.wifi_connecting_please_wait, ssid);
                         ivHintWifiStatus.setBackgroundResource(R.mipmap.wifi_white);
                     }
@@ -402,7 +410,7 @@ public class LauncherActivity extends BaseActivity {
                 }
 
 
-            }else {
+            } else {
                 hintMsg = getString(R.string.wifi_unconnect_try_add);
             }
 

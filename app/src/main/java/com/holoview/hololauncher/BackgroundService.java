@@ -24,6 +24,7 @@ import com.hv.imlib.HoloMessage;
 import com.hv.imlib.ImLib;
 import com.hv.imlib.model.Message;
 import com.hv.imlib.model.message.ImageMessage;
+import com.hv.imlib.model.message.custom.KickedNotificationMessage;
 import com.trios.voicecmd.VoiceCmdEngine;
 
 import org.greenrobot.eventbus.EventBus;
@@ -160,6 +161,15 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
 
     @Override
     public boolean onReceive(Message message) {
+        if (message.getMessageContent() instanceof KickedNotificationMessage) {
+            ImEvent imEvent = new ImEvent();
+            Bundle bundle = new Bundle();
+            imEvent.setAction(3052);
+            imEvent.setData(bundle);
+            EventBus.getDefault().post(imEvent);
+            return false;
+        }
+
         String action = message.getMessageContent().getClass().getSimpleName();
         HoloMessage holoMessage = new HoloMessage();
         holoMessage.setMessage(message);
