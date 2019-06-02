@@ -57,6 +57,10 @@ import butterknife.OnClick;
 public class LauncherActivity extends BaseActivity {
     @BindView(R.id.tv_last_call_time)
     TextView tvLastCallTime;
+
+    @BindView(R.id.tv_last_call_time_hour)
+    TextView tvLastCallTimeHour;
+
     @BindView(R.id.tv_last_call_info)
     TextView tvLastCallInfo;
     NetworkConnectChangedReceiver networkConnectChangedReceiver;
@@ -101,11 +105,19 @@ public class LauncherActivity extends BaseActivity {
         long lastCallTime = MMKV.defaultMMKV().decodeLong("last_call_time", 0L);
         if (lastCallTime == 0L) {
             tvLastCallTime.setVisibility(View.GONE);
+            tvLastCallTimeHour.setVisibility(View.GONE);
         } else {
             tvLastCallTime.setVisibility(View.VISIBLE);
-            DateFormat df2 = new SimpleDateFormat("MM-dd/HH:mm:ss");
+            tvLastCallTimeHour.setVisibility(View.VISIBLE);
+
+            DateFormat df2 = new SimpleDateFormat("MM月dd日");
             String time = df2.format(new Date(lastCallTime));
+            DateFormat df3 = new SimpleDateFormat("HH:mm:ss");
+            String time1 = df3.format(new Date(lastCallTime));
+
             tvLastCallTime.setText(time);
+            tvLastCallTimeHour.setText(time1);
+
         }
         tvLastCallInfo.setText("工单：");
         if (HoloLauncherApp.roomId != 0L) {
@@ -241,6 +253,8 @@ public class LauncherActivity extends BaseActivity {
 
     @OnClick(R.id.rf_clear_history)
     public void clearHistory() {
+
+        MMKV.defaultMMKV().putLong("last_call_time",0);
         HoloLauncherApp.call_list.clear();
         ImLib.instance().logout();
         HoloLauncherApp.token = "";
