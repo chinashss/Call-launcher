@@ -1,8 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 28
 
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -13,7 +17,7 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    api 'holo.com:comm-lib:1.0.7'
+    api 'holo.com:comm-lib:1.0.0'
     //compile 'com.android.support:appcompat-v7:25.0.1'
     implementation files('src/main/libs/Msc.jar')
     implementation files('src/main/libs/Sunflower.jar')

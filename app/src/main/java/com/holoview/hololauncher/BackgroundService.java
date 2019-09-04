@@ -14,20 +14,24 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.holoview.aidl.AudioMessage;
 import com.holoview.aidl.ProcessServiceIAidl;
+import com.holoview.hololauncher.bean.ConnEvent;
 import com.holoview.hololauncher.bean.ImEvent;
 import com.hv.imlib.HoloMessage;
 import com.hv.imlib.ImLib;
 import com.hv.imlib.model.Message;
 import com.hv.imlib.model.message.ImageMessage;
 import com.hv.imlib.model.message.custom.KickedNotificationMessage;
-import com.trios.voicecmd.VoiceCmdEngine;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,6 +56,8 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
     private static boolean isInit = false;
     private ProcessServiceIAidl mProcessAidl;
 
+    private boolean isConnWifi = false;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -60,6 +66,7 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
 
     @Override
     public void onCreate() {
+        EventBus.getDefault().register(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("launcher", "launcher",
                     NotificationManager.IMPORTANCE_HIGH);
@@ -75,10 +82,18 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
 
 
     private void createServer() {
+        Log.i("lipengfei", "isInit" + isInit);
         if (isInit) {
             connetImServer();
             return;
         }
+
+        if (!isConnWifi) {
+            Log.i("lipengfei", "Wifi con't conn");
+            return;
+        }
+
+
         ImLib.instance().init(this, APP_KEY, new ImLib.ResultCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean aBoolean) {
@@ -98,43 +113,47 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
     }
 
     private void connetImServer() {
-        if (HoloLauncherApp.token == null) {
+        Log.i("lipengfei", "connetImServer");
+        if (TextUtils.isEmpty(HoloLauncherApp.token)) {
+            Log.i("lipengfei", "token is null");
             return;
         }
         ImLib.instance().connect(HoloLauncherApp.token, new ImLib.ConnectCallback() {
             @Override
             public void onLocalSuccess(long userid) {
-                // 本地登录（从缓存登录后返回的结果
-//                ImEvent imEvent = new ImEvent();
-//                Bundle bundle = new Bundle();
-//                bundle.putLong("userId", userid);
-//                imEvent.setAction(3050);
-//                imEvent.setData(bundle);
-//                EventBus.getDefault().post(imEvent);
-//                HoloLauncherApp.userSelfId = userid;
+                Log.i("lipengfei", "onLocalSuccess");
             }
 
             @Override
             public void onSuccess(long userid) {
+                Log.i("lipengfei", "onSuccess");
                 ImEvent imEvent = new ImEvent();
                 Bundle bundle = new Bundle();
                 bundle.putLong("userId", userid);
+                HoloLauncherApp.userSelfId = userid;
                 imEvent.setAction(3051);
                 imEvent.setData(bundle);
                 EventBus.getDefault().post(imEvent);
-
-                HoloLauncherApp.userSelfId = userid;
             }
 
             @Override
             public void onFailure(ImLib.ErrorCode err) {
+                Log.i("lipengfei", "onFailure");
             }
 
             @Override
             public void onTokenIncorrect() {
-
+                Log.i("lipengfei", "onTokenIncorrect");
             }
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onImEvent(ConnEvent connEvent) {
+        if (connEvent.getAction() == 1) {
+            isConnWifi = true;
+            createServer();
+        }
     }
 
 
@@ -148,6 +167,7 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
     @Override
     public void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         if (mProcessAidl != null) {
             unbindService(conn);
         }
@@ -221,30 +241,7 @@ public class BackgroundService extends Service implements ImLib.OnReceiveMessage
                     JSONObject content = object.getJSONObject("message").getJSONObject("messageContent");
                     ImageMessage imageMessage = JSON.parseObject(content.toString(), ImageMessage.class);
                     message.setMessageContent(imageMessage);
-                } else if (action.equals("api.audio.subscribe")) {
-                    HoloLauncherApp.getApp().getCmdEngine().subscribe(new VoiceCmdEngine.OnAudioDataListener() {
-                        @Override
-                        public void onAudioData(byte[] audioData) {
-                            try {
-                                AudioMessage audio = new AudioMessage();
-                                audio.setAudioData(audioData);
-                                if (binder.isBinderAlive() && mProcessAidl != null) {
-                                    mProcessAidl.onAudioData(audio);
-                                } else {
-                                    HoloLauncherApp.getApp().getCmdEngine().unUubscribe();
-                                }
-                            } catch (RemoteException e) {
-                                e.printStackTrace();
-                                HoloLauncherApp.getApp().getCmdEngine().unUubscribe();
-                            }
-                        }
-                    });
-                    return;
-                } else if (action.equals("api.audio.unsubscribe")) {
-                    HoloLauncherApp.getApp().getCmdEngine().unUubscribe();
-                    return;
                 }
-
                 ImLib.instance().sendMessage(message, new ImLib.SendImageMessageCallback() {
                     @Override
                     public void onProgress(Message message, double v) {

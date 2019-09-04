@@ -1,40 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center|center_horizontal|center_vertical">
+    android:layout_height="match_parent">
+
+    <cn.bingoogolapple.qrcode.zxing.ZXingView
+        android:id="@+id/zxingview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:qrcv_animTime="1000"
+        app:qrcv_barCodeTipText="放入框内，自动扫描"
+        app:qrcv_barcodeRectHeight="120dp"
+        app:qrcv_borderColor="@android:color/transparent"
+        app:qrcv_borderSize="1dp"
+        app:qrcv_cornerColor="#ff3494FF"
+        app:qrcv_cornerDisplayType="center"
+        app:qrcv_cornerLength="40dp"
+        app:qrcv_cornerSize="6dp"
+        app:qrcv_isAutoZoom="true"
+        app:qrcv_isBarcode="false"
+        app:qrcv_isOnlyDecodeScanBoxArea="false"
+        app:qrcv_isScanLineReverse="true"
+        app:qrcv_isShowDefaultGridScanLineDrawable="false"
+        app:qrcv_isShowDefaultScanLineDrawable="true"
+        app:qrcv_isShowLocationPoint="true"
+        app:qrcv_isShowTipBackground="true"
+        app:qrcv_isShowTipTextAsSingleLine="false"
+        app:qrcv_isTipTextBelowRect="true"
+        app:qrcv_maskColor="#33FFFFFF"
+        app:qrcv_qrCodeTipText="放入框内，自动扫码"
+        app:qrcv_rectWidth="300dp"
+        app:qrcv_scanLineColor="@color/colorPrimaryDark"
+        app:qrcv_scanLineMargin="0dp"
+        app:qrcv_scanLineSize="0.5dp"
+        app:qrcv_tipTextColor="@android:color/white"
+        app:qrcv_tipTextSize="24sp"
+        app:qrcv_toolbarHeight="0dp"
+        app:qrcv_topOffset="0dp"
+        app:qrcv_verticalBias="0.5" />
+
+    <org.evilbinary.tv.widget.TvZorderRelativeLayout
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/navi_bg"
+        android:clipToPadding="false"
+        android:focusable="false"
+        android:gravity="top"
+        android:paddingVertical="20dp">
+
+
+        <org.evilbinary.tv.widget.RoundedFrameLayout
+            android:id="@+id/view_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            app:radius="4dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@mipmap/back_round" />
+        </org.evilbinary.tv.widget.RoundedFrameLayout>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/view_back"
+            android:focusable="false"
+            android:text="桌面 / 专家连线"
+            android:textColor="@color/naviWordColor"
+            android:textSize="24sp" />
+
+
+    </org.evilbinary.tv.widget.TvZorderRelativeLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:layout_height="100dp"
+        android:layout_gravity="bottom"
+        android:background="@mipmap/hint_bg"
+        android:orientation="horizontal">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="20dp"
+            android:src="@mipmap/ic_scan_major" />
 
-            <RelativeLayout
-                android:id="@+id/do_scan_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"></RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="专家连线"
+            android:textColor="#ffffffff"
+            android:textSize="30sp" />
 
-            <TextView
-                android:id="@+id/textView_Scan_Tip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
-                android:text="您的账号被其他眼镜端踢掉了，请确认重新登录..."
-                android:textColor="@android:color/white"
-                android:textSize="30dp"
-                android:visibility="visible" />
-        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="20dp"
+            android:src="@mipmap/wenhao" />
+
+        <TextView
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:lineSpacingExtra="10dp"
+            android:text="请至手机客户端，扫描“专家二维码”，开展远程诊断呼叫。"
+            android:textColor="@color/orange"
+            android:textSize="26dp" />
+
     </LinearLayout>
-</RelativeLayout>
+
+
+</FrameLayout>

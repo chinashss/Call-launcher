@@ -16,7 +16,7 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.tencent.bugly.Bugly;
 import com.tencent.bugly.beta.Beta;
 import com.tencent.mmkv.MMKV;
-import com.trios.voicecmd.VoiceCmdEngine;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 
 public class HoloLauncherApp extends MultiDexApplication {
-    private VoiceCmdEngine cmdEngine;
+//    private VoiceCmdEngine cmdEngine;
     private static HoloLauncherApp app;
 
     public static long userSelfId;
@@ -44,7 +44,6 @@ public class HoloLauncherApp extends MultiDexApplication {
         app = this;
         MMKV.initialize(this);
         SystemConfigSp.instance().init(this);
-        initVoice();
         initBugly();
         initImageLoader(this);
     }
@@ -62,34 +61,29 @@ public class HoloLauncherApp extends MultiDexApplication {
         return app;
     }
 
-    public VoiceCmdEngine getCmdEngine() {
-        return cmdEngine;
-    }
-
-    public void initVoice() {
-        cmdEngine = VoiceCmdEngine.getInstance();
-        if (this.cmdEngine != null) {
-            this.cmdEngine.InitVoice(getApplicationContext());
-        }
-    }
-
-    public void registerVoiceCmd(Handler handler, int cmdId) {
-        if (this.cmdEngine != null) {
-            this.cmdEngine.RegisterVoiceCmd(handler, cmdId);
-        }
-    }
-
-    public void unRegisterVoiceCmd(Handler handler, int cmdID) {
-        if (this.cmdEngine != null) {
-            this.cmdEngine.UnRegisterVoiceCmd(handler, cmdID);
-        }
-    }
-
-    public void startVoice() {
+//    public VoiceCmdEngine getCmdEngine() {
+//        return cmdEngine;
+//    }
+//
+//    public void initVoice() {
+//        cmdEngine = VoiceCmdEngine.getInstance();
 //        if (this.cmdEngine != null) {
-//            this.cmdEngine.StartListener();
+//            this.cmdEngine.InitVoice(getApplicationContext());
 //        }
-    }
+//    }
+//
+//    public void registerVoiceCmd(Handler handler, int cmdId) {
+//        if (this.cmdEngine != null) {
+//            this.cmdEngine.RegisterVoiceCmd(handler, cmdId);
+//        }
+//    }
+//
+//    public void unRegisterVoiceCmd(Handler handler, int cmdID) {
+//        if (this.cmdEngine != null) {
+//            this.cmdEngine.UnRegisterVoiceCmd(handler, cmdID);
+//        }
+//    }
+
 
     private void initImageLoader(Context context) {
         // This configuration tuning is custom. You can tune every option, you may tune some of them,

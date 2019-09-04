@@ -2,6 +2,7 @@ package com.holoview.hololauncher;
 
 import android.animation.Animator;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,8 +12,11 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,16 +29,16 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
-import com.holoview.hololauncher.activitys.ScanLoginActivity;
+import com.holoview.hololauncher.activitys.QRScanActivity;
+import com.holoview.hololauncher.bean.ConnEvent;
 import com.holoview.hololauncher.bean.Constants;
 import com.holoview.hololauncher.bean.ImEvent;
+import com.holoview.hololauncher.utils.PingService;
+import com.holoview.hololauncher.utils.SuUtil;
 import com.hv.imlib.DB.sp.SystemConfigSp;
-import com.hv.imlib.HoloMessage;
 import com.hv.imlib.ImLib;
 import com.hv.imlib.protocol.http.NaviRes;
 import com.tencent.mmkv.MMKV;
-import com.trios.voicecmd.AudioOrderMessage;
-import com.trios.voicecmd.VoiceCmdEngine;
 
 import org.evilbinary.tv.widget.BorderEffect;
 import org.evilbinary.tv.widget.BorderView;
@@ -45,6 +49,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,7 +60,7 @@ import butterknife.OnClick;
  * Created by Mr.kk on 2019/3/20.
  * This Project is android-glass-launcher
  */
-public class LauncherActivity extends BaseActivity {
+public class LauncherActivity extends AppCompatActivity {
     @BindView(R.id.tv_last_call_time)
     TextView tvLastCallTime;
 
@@ -72,8 +78,10 @@ public class LauncherActivity extends BaseActivity {
 
     @BindView(R.id.tv_hintMsg)
     TextView tvHintWifiStatus;
+    @BindView(R.id.tv_title)
+    TextView tvTitle;
 
-
+    private Executor executor = Executors.newSingleThreadExecutor();
     private WifiManager mWifiManager;
 
     @Override
@@ -82,6 +90,7 @@ public class LauncherActivity extends BaseActivity {
         setContentView(R.layout.activity_launcher_2);
         ButterKnife.bind(this);
         initIMService();
+        initPingService();
         EventBus.getDefault().register(this);
         focusView();
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -93,6 +102,42 @@ public class LauncherActivity extends BaseActivity {
         networkConnectChangedReceiver = new NetworkConnectChangedReceiver();
         getApplicationContext().registerReceiver(networkConnectChangedReceiver, filter);
 
+    }
+
+
+    Handler ping = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 0) {
+                int ms = msg.arg1;
+                if (ms > 0) {
+                    tvTitle.setText(getString(R.string.title_desktop) + "(" + ms + "ms)");
+                } else {
+                    tvTitle.setText(getString(R.string.title_desktop) + "(暂时没有网络)");
+                }
+            } else if (msg.what == 1) {
+                initPingService();
+            }
+
+
+        }
+    };
+
+
+    private void initPingService() {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                int i = PingService.ping("demo.holoview-lab.com", 1);
+                Message message = Message.obtain();
+                message.what = 0;
+                message.arg1 = i;
+                ping.sendMessage(message);
+                ping.sendEmptyMessageDelayed(1, 3000);
+                Log.i("LOO", i + "ms");
+            }
+        });
     }
 
 
@@ -207,25 +252,25 @@ public class LauncherActivity extends BaseActivity {
         unregisterReceiver(networkConnectChangedReceiver);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onAudioOrderMessage(AudioOrderMessage message) {
-        switch (message.getType()) {
-            case VoiceCmdEngine.VoiceCmd_CALL:
-                Toast.makeText(getBaseContext(), "触发呼叫命令", Toast.LENGTH_SHORT).show();
-                callMajor();
-//                onItemClick(0);
-                break;
-            case VoiceCmdEngine.VoiceCmd_Setting:
-                Toast.makeText(getBaseContext(), "触发系统设置命令", Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                HoloMessage holoMessage = new HoloMessage();
-                holoMessage.setAction("api.voice.order");
-                holoMessage.setExtraMsg(String.valueOf(message.getType()));
-                EventBus.getDefault().postSticky(holoMessage);
-                break;
-        }
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void onAudioOrderMessage(AudioOrderMessage message) {
+//        switch (message.getType()) {
+//            case VoiceCmdEngine.VoiceCmd_CALL:
+//                Toast.makeText(getBaseContext(), "触发呼叫命令", Toast.LENGTH_SHORT).show();
+//                callMajor();
+////                onItemClick(0);
+//                break;
+//            case VoiceCmdEngine.VoiceCmd_Setting:
+//                Toast.makeText(getBaseContext(), "触发系统设置命令", Toast.LENGTH_SHORT).show();
+//                break;
+//            default:
+//                HoloMessage holoMessage = new HoloMessage();
+//                holoMessage.setAction("api.voice.order");
+//                holoMessage.setExtraMsg(String.valueOf(message.getType()));
+//                EventBus.getDefault().postSticky(holoMessage);
+//                break;
+//        }
+//    }
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -261,10 +306,13 @@ public class LauncherActivity extends BaseActivity {
 
     @OnClick(R.id.rf_clear_history)
     public void clearHistory() {
-
-        MMKV.defaultMMKV().putLong("last_call_time",0);
+        MMKV.defaultMMKV().putLong("last_call_time", 0);
         HoloLauncherApp.call_list.clear();
-        ImLib.instance().logout();
+        try {
+            ImLib.instance().logout();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         HoloLauncherApp.token = "";
         HoloLauncherApp.roomId = 0L;
         HoloLauncherApp.converstaiontype = 0;
@@ -305,8 +353,10 @@ public class LauncherActivity extends BaseActivity {
 
     @OnClick(R.id.rf_call_major_new)
     public void callMajorNew() {
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        manager.killBackgroundProcesses("com.realview.holo.call");
         clearHistory();
-        Intent intent = new Intent(this, ScanLoginActivity.class);
+        Intent intent = new Intent(this, QRScanActivity.class);
         startActivityForResult(intent, Constants.ACTION_START_MAJOR);
     }
 
@@ -318,6 +368,7 @@ public class LauncherActivity extends BaseActivity {
             return;
         }
         if (requestCode == Constants.ACTION_START_MAJOR) {
+            Log.i("lipengfei", "onActivityResult");
             initIMService();
         }
     }
@@ -375,6 +426,7 @@ public class LauncherActivity extends BaseActivity {
                     if (isConnected) {
                         ivWifiStatus.setImageResource(R.mipmap.ic_tab_wifi_conn);
                     } else {
+                        clearHistory();
                         ivWifiStatus.setImageResource(R.mipmap.ic_tab_wifi_disconn);
                     }
                 }
@@ -389,9 +441,11 @@ public class LauncherActivity extends BaseActivity {
                     if (NetworkInfo.State.CONNECTED == info.getState() && info.isAvailable()) {
                         if (info.getType() == ConnectivityManager.TYPE_WIFI
                                 || info.getType() == ConnectivityManager.TYPE_MOBILE) {
+                            EventBus.getDefault().post(new ConnEvent(1));
                             ivWifiStatus.setImageResource(R.mipmap.ic_tab_wifi_conn);
                         }
                     } else {
+                        clearHistory();
                         ivWifiStatus.setImageResource(R.mipmap.ic_tab_wifi_disconn);
                     }
                 }
@@ -427,9 +481,7 @@ public class LauncherActivity extends BaseActivity {
             } else {
                 hintMsg = getString(R.string.wifi_unconnect_try_add);
             }
-
             tvHintWifiStatus.setText(Html.fromHtml(hintMsg));
-
         }
     }
 

@@ -1,1 +1,1 @@
-include ':app', ':voicecmd', ':zbarcanner'
+include ':app', ':voicecmd',':zbarcanner'

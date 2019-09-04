@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:cv="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    android:background="@mipmap/background"
     android:focusable="false"
-    android:background="@mipmap/background">
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/layout_top"
@@ -15,9 +15,9 @@
         android:layout_height="100dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:background="@mipmap/navi_bg"
         android:focusable="false"
         android:orientation="horizontal"
-        android:background="@mipmap/navi_bg"
 
         >
 
@@ -26,21 +26,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginLeft="39dp"
             android:focusable="false"
             android:text="@string/title_desktop"
             android:textColor="@color/naviWordColor"
-            android:textSize="24sp"
-            android:layout_marginLeft="39dp"/>
+            android:textSize="24sp" />
 
     </LinearLayout>
 
-    <org.evilbinary.tv.widget.TvHorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <org.evilbinary.tv.widget.TvHorizontalScrollView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:layout_weight="1">
 
         <org.evilbinary.tv.widget.TvZorderRelativeLayout
             android:id="@+id/list"
@@ -55,23 +53,21 @@
                 android:id="@+id/rf_recall_communication"
                 android:layout_width="209dp"
                 android:layout_height="280dp"
+                android:layout_alignParentLeft="true"
                 android:layout_marginLeft="30dp"
                 android:background="@mipmap/bg_app_match"
                 android:focusable="true"
-                android:layout_alignParentLeft="true"
                 app:radius="12dp">
 
 
-
                 <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="74dp"
-                    android:scaleType="fitCenter"
-                    android:src="@mipmap/ic_tab_recall"
                     android:focusable="false"
-                    />
+                    android:scaleType="fitCenter"
+                    android:src="@mipmap/ic_tab_recall" />
 
 
                 <TextView
@@ -84,47 +80,47 @@
                     android:textColor="@color/white"
                     android:textSize="16sp"
 
-                    tools:text="专家：546546464\n工单：64646476"
-                    android:visibility="gone"/>
+                    android:visibility="gone"
+                    tools:text="专家：546546464\n工单：64646476" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="90dp"
                     android:layout_gravity="bottom"
+                    android:layout_marginBottom="90dp"
                     android:orientation="horizontal"
                     android:weightSum="1">
+
                     <TextView
                         android:id="@+id/tv_last_call_time"
                         android:layout_width="0dp"
-                        android:layout_weight="0.5"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_weight="0.5"
+                        android:textAlignment="viewStart"
                         android:textColor="@color/naviWordColor"
                         android:textSize="16sp"
-                        tools:text="09-09"
-                        android:textAlignment="viewStart"
-                        android:layout_marginLeft="16dp"/>
+                        tools:text="09-09" />
 
                     <TextView
                         android:id="@+id/tv_last_call_time_hour"
                         android:layout_width="0dp"
-                        android:layout_weight="0.5"
                         android:layout_height="wrap_content"
+                        android:layout_marginRight="16dp"
+                        android:layout_weight="0.5"
+                        android:textAlignment="viewEnd"
                         android:textColor="@color/naviWordColor"
                         android:textSize="16sp"
-                        tools:text="09-09 14:23"
-                        android:textAlignment="viewEnd"
-                        android:layout_marginRight="16dp"/>
+                        tools:text="09-09 14:23" />
                 </LinearLayout>
-
 
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:gravity="center"
                     android:layout_marginBottom="25dp"
+                    android:gravity="center"
                     android:text="继续上次会话"
                     android:textColor="@color/white"
                     android:textSize="@dimen/btn_tiltle_text_size" />
@@ -143,8 +139,8 @@
                 app:radius="12dp">
 
                 <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="74dp"
                     android:scaleType="fitCenter"
@@ -174,8 +170,8 @@
 
                 <ImageView
                     android:id="@+id/iv_wifi_status"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="20dp"
                     android:src="@mipmap/ic_tab_wifi_disconn" />
@@ -198,17 +194,17 @@
                 android:layout_width="209dp"
                 android:layout_height="130dp"
                 android:layout_below="@id/rf_wifi_conn"
-                android:layout_marginTop="20dp"
-                android:layout_alignBottom="@id/rf_call_major_new"
                 android:layout_alignLeft="@+id/rf_wifi_conn"
+                android:layout_alignBottom="@id/rf_call_major_new"
+                android:layout_marginTop="20dp"
                 android:layout_toRightOf="@id/rf_call_major_new"
                 android:background="@mipmap/bg_app_wrap"
                 android:focusable="true"
                 app:radius="12dp">
 
                 <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="20dp"
                     android:src="@mipmap/ic_tab_clear_history" />
@@ -239,8 +235,8 @@
 
 
                 <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="74dp"
                     android:scaleType="fitCenter"
@@ -267,9 +263,8 @@
         android:id="@+id/layout_hint"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:focusable="false"
         android:background="@mipmap/hint_bg"
-        >
+        android:focusable="false">
 
         <ImageView
             android:id="@+id/iv_hintImg"
@@ -282,15 +277,14 @@
             android:focusable="false"
 
             />
+
         <TextView
             android:id="@+id/tv_hintMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/orange"
-            android:textSize="30sp"
             android:layout_gravity="center_vertical"
-            android:text="@string/wifi_unconnect_try_add"
             android:focusable="false"
-            />
+            android:textColor="@color/orange"
+            android:textSize="30sp" />
     </LinearLayout>
 </LinearLayout>

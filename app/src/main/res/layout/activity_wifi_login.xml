@@ -7,7 +7,7 @@
     <FrameLayout
         android:id="@+id/fl_scan_wifi_contont"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -22,9 +22,8 @@
             android:orientation="horizontal">
 
             <ImageView
-
-                android:layout_width="64dp"
-                android:layout_height="55dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="20dp"
@@ -40,8 +39,8 @@
 
 
             <ImageView
-                android:layout_width="64dp"
-                android:layout_height="55dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="20dp"
@@ -69,29 +68,29 @@
         android:clipToPadding="false"
         android:focusable="false"
         android:gravity="top">
+
         <LinearLayout
             android:id="@+id/layout_top"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:focusable="false"
-            android:orientation="horizontal"
             android:background="@mipmap/navi_bg"
-            >
+            android:focusable="false"
+            android:orientation="horizontal">
 
             <org.evilbinary.tv.widget.RoundedFrameLayout
                 android:id="@+id/view_back"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 app:radius="4dp">
 
                 <ImageView
-                    android:layout_width="76dp"
-                    android:layout_height="76dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@mipmap/back_round" />
             </org.evilbinary.tv.widget.RoundedFrameLayout>
