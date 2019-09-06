@@ -12,10 +12,8 @@ import android.widget.FrameLayout;
 
 import com.holoview.hololauncher.R;
 import com.holoview.hololauncher.basic.BaseActivity;
-import com.holoview.hololauncher.bean.Constants;
 import com.holoview.hololauncher.mvp.ScanContract;
 import com.holoview.hololauncher.mvp.ScanPresenter;
-import com.tencent.mmkv.MMKV;
 
 import org.evilbinary.tv.widget.BorderEffect;
 import org.evilbinary.tv.widget.BorderView;
